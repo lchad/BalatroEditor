@@ -401,6 +401,28 @@ const GAME_NAMES_ZH = {
     "win_streak": "最佳连胜纪录",
     "poker_hand": "最常用的牌型"
 },
+    challenges: {
+    "c_omelette_1": "煎蛋卷",
+    "c_city_1": "15分钟都市",
+    "c_rich_1": "富者愈富",
+    "c_knife_1": "刀锋之上",
+    "c_xray_1": "X光视界",
+    "c_mad_world_1": "疯狂世界",
+    "c_luxury_1": "奢侈税",
+    "c_non_perishable_1": "不腐之物",
+    "c_medusa_1": "美杜莎",
+    "c_double_nothing_1": "孤注一掷",
+    "c_typecast_1": "角色固化",
+    "c_inflation_1": "通货膨胀",
+    "c_bram_poker_1": "布莱姆·扑克",
+    "c_fragile_1": "易碎品",
+    "c_monolith_1": "巨石",
+    "c_blast_off_1": "点火升空",
+    "c_five_card_1": "五连抽",
+    "c_golden_needle_1": "金针",
+    "c_cruelty_1": "残酷",
+    "c_jokerless_1": "无小丑"
+},
 };
 
 /**

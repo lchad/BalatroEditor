@@ -116,6 +116,17 @@ if (hsMatch) {
     }
 }
 
+// challenge_names = { c_five_card_1 = "五连抽", ... }
+const challengeMatch = miscBody.match(/\n {8}challenge_names\s*=\s*\{([\s\S]*?)\n {8}\},?/);
+const challenges = {};
+if (challengeMatch) {
+    const re = /(\w+)\s*=\s*"(.+)"/g;
+    let m;
+    while ((m = re.exec(challengeMatch[1])) !== null) {
+        challenges[m[1]] = m[2];
+    }
+}
+
 // --- Generate output ---
 // Add seal display-name aliases (save-editor uses 'Red' not 'red_seal')
 const SEAL_ALIASES = {
@@ -151,6 +162,7 @@ const GAME_NAMES_ZH = {
     ranks: ${toJS(ranks)},
     seals: ${toJS(seals)},
     highScores: ${toJS(highScores)},
+    challenges: ${toJS(challenges)},
 };
 
 /**
@@ -190,6 +202,7 @@ const counts = {
     ranks: Object.keys(ranks).length,
     seals: Object.keys(seals).length,
     highScores: Object.keys(highScores).length,
+    challenges: Object.keys(challenges).length,
 };
 
 console.log(`Generated: ${OUTPUT}`);

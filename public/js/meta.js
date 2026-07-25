@@ -285,7 +285,11 @@ function renderCategory(category) {
         let items = getItemsForCategory(category);
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
-            items = items.filter(item => formatName(item).toLowerCase().includes(term));
+            items = items.filter(item => {
+                const en = formatName(item).toLowerCase();
+                const zh = i18nGameName(item, getCurrentLanguage());
+                return en.includes(term) || (zh !== item && zh.toLowerCase().includes(term));
+            });
         }
         const cat = CATEGORIES[category];
         const allItems = getItemsForCategory(category);
@@ -379,7 +383,7 @@ function getItemState(id) {
 
 function createItemCard(id, category) {
     const state = getItemState(id);
-    const name = formatName(id);
+    const name = i18nGameName(id, getCurrentLanguage()) || formatName(id);
     const imgUrl = getImageUrl(id, category);
     return `
         <div class="item-card ${state}" data-id="${id}" tabindex="0" role="button">

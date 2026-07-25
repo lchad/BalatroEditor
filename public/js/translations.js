@@ -723,6 +723,7 @@ function setLanguage(lang) {
     populateDropdowns();
     if (typeof editMode !== 'undefined') editMode = false;
     if (typeof renderCategory === 'function') renderCategory(currentCategory);
+    if (typeof renderProfile === 'function' && typeof profileData !== 'undefined' && profileData) renderProfile();
     if (typeof renderSaveEditor === 'function' && typeof saveData !== 'undefined' && saveData) renderSaveEditor();
 }
 

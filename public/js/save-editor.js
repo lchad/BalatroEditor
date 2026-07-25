@@ -638,7 +638,7 @@ function renderGameTab() {
             <h3><i class="fa-solid fa-sliders"></i> ${__('save.tab.game')}</h3>
             <div class="game-deck-section">
                 <div class="game-stat-card">
-                    <div class="game-stat-label"><i class="fa-solid fa-layer-group"></i> ${__('Deck')}</div>
+                    <div class="game-stat-label"><i class="fa-solid fa-layer-group"></i> ${__('save.deck')}</div>
                     <select class="game-deck-select" data-field="deck">
                         ${decks.map(d => {
                             const lang = getCurrentLanguage();
@@ -648,7 +648,7 @@ function renderGameTab() {
                     </select>
                 </div>
                 <div class="game-stat-card">
-                    <div class="game-stat-label"><i class="fa-solid fa-trophy"></i> ${__('Stake')}</div>
+                    <div class="game-stat-label"><i class="fa-solid fa-trophy"></i> ${__('save.stake')}</div>
                     <select class="game-stake-select" data-field="stake">
                         ${STAKES.map(s => `<option value="${s.id}" ${s.id === currentStake ? 'selected' : ''}>${getCurrentLanguage() === 'zh' ? s.labelZh : getCurrentLanguage() === 'es' ? s.labelEs : s.label}</option>`).join('')}
                     </select>
@@ -713,7 +713,7 @@ function renderJokersTab() {
                     extraFieldsHtml += `
                         <div class="joker-extra-row readonly">
                             <label for="${inputId}">${i18nGameName(f.label, getCurrentLanguage())}</label>
-                            <span class="joker-extra-readonly" title="Fixed game value">${val}</span>
+                            <span class="joker-extra-readonly">${val}</span>
                         </div>`;
                 } else if (f.type === 'select') {
                     extraFieldsHtml += `
@@ -737,17 +737,17 @@ function renderJokersTab() {
         html += `
             <div class="joker-item" data-key="${key}">
                 <div class="joker-header">
-                    <img class="joker-sprite" data-src="1" data-id="${currentId}" data-category="jokers" src="${PLACEHOLDER_SVG}" alt="${formatName(currentId)}" loading="lazy">
+                    <img class="joker-sprite" data-src="1" data-id="${currentId}" data-category="jokers" src="${PLACEHOLDER_SVG}" alt="${getJokerName(currentId)}" loading="lazy">
                     <div class="joker-header-info">
                         <span class="joker-id">#${index}</span>
                         <select class="joker-select" data-key="${key}" data-field="id">
                             ${allJokers.map(jid => `
-                                <option value="${jid}" ${jid === currentId ? 'selected' : ''}>${formatName(jid)}</option>
+                                <option value="${jid}" ${jid === currentId ? 'selected' : ''}>${getJokerName(jid)}</option>
                             `).join('')}
                         </select>
                         <div class="joker-abilities">
                             ${_editionTypes.map(ed => `
-                                <button class="ability-btn ${ed === currentEdition ? 'active' : ''}" data-key="${key}" data-edition="${ed}">${formatName(ed)}</button>
+                                <button class="ability-btn ${ed === currentEdition ? 'active' : ''}" data-key="${key}" data-edition="${ed}">${i18nGameName(ed, getCurrentLanguage()) || formatName(ed)}</button>
                             `).join('')}
                         </div>
                         <div class="joker-stickers">
@@ -846,7 +846,7 @@ function renderDeckTab() {
                     <input type="checkbox" class="deck-card-cb" data-key="${key}" data-area="deck">
                 </label>
                 <span class="deck-card-label" style="color:${sColor}">
-                    ${isNew ? `<i class="fa-solid fa-star"></i> ${__('save.deck.new_card')}` : `${sIcon} ${currentValue}`}
+                    ${isNew ? `<i class="fa-solid fa-star"></i> ${__('save.deck.new_card')}` : `${sIcon} ${i18nGameName(currentValue, getCurrentLanguage()) || currentValue}`}
                 </span>
                 <select class="deck-suit-select" data-key="${key}" data-field="suit">
                     ${isNew ? '<option value="">-</option>' : ''}
@@ -883,7 +883,7 @@ function renderDeckTab() {
                         <input type="checkbox" class="suit-select-all" data-suit="${suit}" style="accent-color:var(--gold);">
                         <span class="deck-suit-icon">${meta.icon}</span>
                     </label>
-                    ${suit}
+                    ${i18nGameName(suit, getCurrentLanguage()) || suit}
                     <span class="deck-suit-count">(${cards.length})</span>
                 </h4>
                 <div class="deck-grid">
@@ -936,7 +936,7 @@ function renderVouchersTab() {
     voucherList.forEach(vid => {
         html += `
             <div class="voucher-item" data-vid="${vid}">
-                <span class="voucher-id">${formatName(vid)}</span>
+                <span class="voucher-id">${i18nGameName(vid, getCurrentLanguage()) || formatName(vid)}</span>
                 <span style="color: var(--text-dim); font-family: var(--font-terminal); font-size:12px;">${vid}</span>
                 <button class="remove-btn" data-vid="${vid}"><i class="fa-solid fa-trash"></i></button>
             </div>
@@ -948,7 +948,7 @@ function renderVouchersTab() {
             <div style="display:flex; gap:8px; margin-top:12px;">
                 <select id="add-voucher-select" style="flex:1; padding:8px 12px; background: var(--bg-tertiary); border:2px solid var(--bg-panel); border-radius:10px; color: var(--text-light); font-family: var(--font-terminal); font-size:14px;">
                     <option value="">${__('save.select_voucher')}</option>
-                    ${allVouchers.map(v => `<option value="${v}">${formatName(v)}</option>`).join('')}
+                    ${allVouchers.map(v => `<option value="${v}">${i18nGameName(v, getCurrentLanguage()) || formatName(v)}</option>`).join('')}
                 </select>
                 <button class="add-btn" id="add-voucher-btn" style="width:auto; padding:8px 18px;">
                     <i class="fa-solid fa-plus"></i> ${__('save.add')}
@@ -1022,7 +1022,7 @@ function renderConsumablesTab() {
                 <span class="joker-id">#${index}</span>
                 <select class="consumable-select" data-key="${key}" data-field="id">
                     ${allConsumables.map(cid => `
-                        <option value="${cid}" ${cid === currentId ? 'selected' : ''}>${formatName(cid)}</option>
+                        <option value="${cid}" ${cid === currentId ? 'selected' : ''}>${i18nGameName(cid, getCurrentLanguage()) || formatName(cid)}</option>
                     `).join('')}
                 </select>
                 <button class="remove-btn" data-key="${key}" data-area="consumeables"><i class="fa-solid fa-trash"></i></button>
@@ -1605,7 +1605,7 @@ function updateDeckBulkBar() {
 function showJokerAddModal() {
     const allJokers = getAllJokerIds();
     if (allJokers.length === 0) {
-        showNotification(__('No jokers available — import a meta.jkr first'), 'error');
+        showNotification(__('save.no_jokers_available'), 'error');
         return;
     }
 

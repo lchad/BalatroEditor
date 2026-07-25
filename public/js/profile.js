@@ -368,7 +368,7 @@ function renderHandUsage() {
         <div class="stat-card">
             <div class="stat-icon"><i class="fa-solid fa-hand-back-fist"></i></div>
             <div class="stat-content">
-                <div class="stat-label">${data.order}</div>
+                <div class="stat-label">${i18nGameName(handType, getCurrentLanguage()) || handType}</div>
                 <input type="number" class="stat-value-input" data-path="hand_usage.${handType}.count" value="${data.count}" readonly>
             </div>
         </div>
@@ -393,7 +393,7 @@ function renderTopConsumables() {
                 ${consumables.map(([id, data], index) => `
                     <tr>
                         <td>${index + 1}</td>
-                        <td>${formatProfileName(id)}</td>
+                        <td>${i18nGameName(id, getCurrentLanguage()) || formatProfileName(id)}</td>
                         <td><input type="number" class="editable-stat tiny" data-path="consumeable_usage.${id}.count" value="${data.count}" readonly></td>
                     </tr>
                 `).join('')}
@@ -416,7 +416,7 @@ function renderChallengeProgress() {
         return `
             <div class="challenge-item ${isCompleted ? 'completed' : ''}" data-challenge="${challengeId}" tabindex="0" role="button">
                 <i class="fa-solid ${isCompleted ? 'fa-square-check' : 'fa-square'}"></i>
-                <span>${formatProfileName(challengeId)}</span>
+                <span>${i18nGameName(challengeId, getCurrentLanguage()) || formatProfileName(challengeId)}</span>
             </div>
         `;
     }).join('');
