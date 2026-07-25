@@ -213,32 +213,77 @@ function updateStats() {
 function getItemsForCategory(category) {
     const cat = CATEGORIES[category];
     const items = [];
+
+    // Merge metaData keys with authoritative full list from GAME_NAMES_ZH
+    const metaKeys = new Set([
+        ...Object.keys(metaData.unlocked || {}),
+        ...Object.keys(metaData.discovered || {}),
+        ...Object.keys(metaData.alerted || {})
+    ]);
+
+    // Known full item lists from the game data (so missing cards still show as locked)
+    const FULL_LISTS = {
+        jokers:    GAME_NAMES_ZH.jokers,
+        vouchers:  GAME_NAMES_ZH.vouchers,
+        tarots:    GAME_NAMES_ZH.tarots,
+        planets:   GAME_NAMES_ZH.planets,
+        spectrals: GAME_NAMES_ZH.spectrals,
+        tags:      GAME_NAMES_ZH.tags,
+        blinds:    GAME_NAMES_ZH.blinds,
+        decks:     GAME_NAMES_ZH.backs,
+    };
+
     if (cat.isMultiple) {
+        // Modifiers: use subcategories
         cat.subcategories.forEach(subcat => {
-            for (let key in metaData.unlocked) {
-                if (subcat.isSeal && key === 'soul') {
+            // Try authoritative list first, fall back to metaData scan
+            let found = false;
+            if (subcat.prefix === 'm_' && GAME_NAMES_ZH.enhancements) {
+                for (let key in GAME_NAMES_ZH.enhancements) {
                     items.push(key);
-                } else if (key.startsWith(subcat.prefix) && !key.startsWith('p_')) {
+                }
+                found = true;
+            } else if (subcat.prefix === 'e_' && GAME_NAMES_ZH.editions) {
+                for (let key in GAME_NAMES_ZH.editions) {
                     items.push(key);
+                }
+                found = true;
+            } else if (subcat.isSeal && GAME_NAMES_ZH.seals) {
+                for (let key in GAME_NAMES_ZH.seals) {
+                    if (key === 'gold_seal' || key === 'blue_seal' || key === 'red_seal' || key === 'purple_seal') {
+                        items.push(key);
+                    }
+                }
+                found = true;
+            }
+            if (!found) {
+                for (let key in metaData.unlocked) {
+                    if (subcat.isSeal && key === 'soul') {
+                        items.push(key);
+                    } else if (key.startsWith(subcat.prefix) && !key.startsWith('p_')) {
+                        items.push(key);
+                    }
                 }
             }
         });
         return [...new Set(items)].sort();
     }
-    const allKeys = new Set([
-        ...Object.keys(metaData.unlocked || {}),
-        ...Object.keys(metaData.discovered || {}),
-        ...Object.keys(metaData.alerted || {})
-    ]);
+
+    // Use full known list if available, else fall back to metaData only
+    const knownList = FULL_LISTS[category];
+    const allKeys = knownList
+        ? new Set([...Object.keys(knownList), ...metaKeys])
+        : metaKeys;
+
     for (let key of allKeys) {
-        if (cat.filter) {
+        if (cat.filter && typeof key === 'string') {
             const itemName = key.replace(cat.prefix, '');
             if (cat.filter.includes(itemName)) {
                 items.push(key);
             }
         } else if (cat.isSeal && key === 'soul') {
             items.push(key);
-        } else if (key.startsWith(cat.prefix) && !key.startsWith('p_')) {
+        } else if (typeof key === 'string' && key.startsWith(cat.prefix) && !key.startsWith('p_')) {
             if (category === 'tarots' || category === 'planets' || category === 'spectrals') {
                 continue;
             }
