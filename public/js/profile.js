@@ -348,7 +348,7 @@ function renderTopJokers() {
                     return `
                         <tr>
                             <td>${index + 1}</td>
-                            <td>${formatProfileName(id)}</td>
+                            <td>${i18nGameName(id, getCurrentLanguage()) || formatProfileName(id)}</td>
                             <td><input type="number" class="editable-stat tiny" data-path="joker_usage.${id}.count" value="${data.count}" readonly></td>
                             <td>${wins}</td>
                             <td>${losses}</td>

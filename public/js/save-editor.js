@@ -19,14 +19,14 @@ let _allJokerIds = null;
 let _allVoucherIds = null;
 
 const STAKES = [
-    { id: 0, label: 'White Stake', labelEs: 'Apuesta Blanca' },
-    { id: 1, label: 'Red Stake',   labelEs: 'Apuesta Roja' },
-    { id: 2, label: 'Green Stake', labelEs: 'Apuesta Verde' },
-    { id: 3, label: 'Black Stake', labelEs: 'Apuesta Negra' },
-    { id: 4, label: 'Blue Stake',  labelEs: 'Apuesta Azul' },
-    { id: 5, label: 'Purple Stake', labelEs: 'Apuesta Púrpura' },
-    { id: 6, label: 'Orange Stake', labelEs: 'Apuesta Naranja' },
-    { id: 7, label: 'Gold Stake',  labelEs: 'Apuesta Dorada' }
+    { id: 0, label: 'White Stake', labelEs: 'Apuesta Blanca', labelZh: '白注' },
+    { id: 1, label: 'Red Stake',   labelEs: 'Apuesta Roja', labelZh: '红注' },
+    { id: 2, label: 'Green Stake', labelEs: 'Apuesta Verde', labelZh: '绿注' },
+    { id: 3, label: 'Black Stake', labelEs: 'Apuesta Negra', labelZh: '黑注' },
+    { id: 4, label: 'Blue Stake',  labelEs: 'Apuesta Azul', labelZh: '蓝注' },
+    { id: 5, label: 'Purple Stake', labelEs: 'Apuesta Púrpura', labelZh: '紫注' },
+    { id: 6, label: 'Orange Stake', labelEs: 'Apuesta Naranja', labelZh: '橙注' },
+    { id: 7, label: 'Gold Stake',  labelEs: 'Apuesta Dorada', labelZh: '金注' }
 ];
 
 const DECK_NAMES = {
@@ -162,6 +162,7 @@ const _editionConfig = {
 };
 
 function getJokerName(id) {
+    if (getCurrentLanguage() === 'zh' && GAME_NAMES_ZH.jokers[id]) return GAME_NAMES_ZH.jokers[id];
     return _jokerNames[id] || formatName(id);
 }
 
@@ -639,13 +640,17 @@ function renderGameTab() {
                 <div class="game-stat-card">
                     <div class="game-stat-label"><i class="fa-solid fa-layer-group"></i> ${__('Deck')}</div>
                     <select class="game-deck-select" data-field="deck">
-                        ${decks.map(d => `<option value="${d}" ${d === currentDeck ? 'selected' : ''}>${DECK_NAMES[d] || formatName(d)}</option>`).join('')}
+                        ${decks.map(d => {
+                            const lang = getCurrentLanguage();
+                            const deckName = lang === 'zh' ? (GAME_NAMES_ZH.backs[d] || formatName(d)) : (DECK_NAMES[d] || formatName(d));
+                            return `<option value="${d}" ${d === currentDeck ? 'selected' : ''}>${deckName}</option>`;
+                        }).join('')}
                     </select>
                 </div>
                 <div class="game-stat-card">
                     <div class="game-stat-label"><i class="fa-solid fa-trophy"></i> ${__('Stake')}</div>
                     <select class="game-stake-select" data-field="stake">
-                        ${STAKES.map(s => `<option value="${s.id}" ${s.id === currentStake ? 'selected' : ''}>${currentLang === 'es' ? s.labelEs : s.label}</option>`).join('')}
+                        ${STAKES.map(s => `<option value="${s.id}" ${s.id === currentStake ? 'selected' : ''}>${getCurrentLanguage() === 'zh' ? s.labelZh : getCurrentLanguage() === 'es' ? s.labelEs : s.label}</option>`).join('')}
                     </select>
                 </div>
             </div>
@@ -691,7 +696,7 @@ function renderJokersTab() {
             const rawExtra = ability.extra;
             const extraObj = (rawExtra != null && typeof rawExtra === 'object') ? rawExtra : {};
             extraFieldsHtml = `<div class="joker-extra-fields" data-key="${key}">`;
-            extraFieldsHtml += `<span class="joker-extra-label"><i class="fa-solid fa-sliders"></i> Stats</span>`;
+            extraFieldsHtml += `<span class="joker-extra-label"><i class="fa-solid fa-sliders"></i> ${__('save.stats')}</span>`;
             extraFieldsHtml += `<div class="joker-extra-grid">`;
             for (const f of extraFields) {
                 let val;
@@ -707,13 +712,13 @@ function renderJokersTab() {
                 if (!f.editable) {
                     extraFieldsHtml += `
                         <div class="joker-extra-row readonly">
-                            <label for="${inputId}">${f.label}</label>
+                            <label for="${inputId}">${i18nGameName(f.label, getCurrentLanguage())}</label>
                             <span class="joker-extra-readonly" title="Fixed game value">${val}</span>
                         </div>`;
                 } else if (f.type === 'select') {
                     extraFieldsHtml += `
                         <div class="joker-extra-row">
-                            <label for="${inputId}">${f.label}</label>
+                            <label for="${inputId}">${i18nGameName(f.label, getCurrentLanguage())}</label>
                             <select class="joker-extra-input" data-key="${key}" data-extra-field="${f.key}">
                                 ${f.options.map(o => `<option value="${o}" ${o === val ? 'selected' : ''}>${o}</option>`).join('')}
                             </select>
@@ -721,7 +726,7 @@ function renderJokersTab() {
                 } else {
                     extraFieldsHtml += `
                         <div class="joker-extra-row">
-                            <label for="${inputId}">${f.label}</label>
+                            <label for="${inputId}">${i18nGameName(f.label, getCurrentLanguage())}</label>
                             <input id="${inputId}" type="${f.type}" class="joker-extra-input" data-key="${key}" data-extra-field="${f.key}" value="${val}" step="${f.type === 'number' ? 'any' : ''}">
                         </div>`;
                 }
@@ -747,13 +752,13 @@ function renderJokersTab() {
                         </div>
                         <div class="joker-stickers">
                             <label class="ability-check ${eternal ? 'danger' : ''}">
-                                <input type="checkbox" data-key="${key}" data-flag="eternal" ${eternal ? 'checked' : ''}> Eternal
+                                <input type="checkbox" data-key="${key}" data-flag="eternal" ${eternal ? 'checked' : ''}> ${__('save.joker.eternal')}
                             </label>
                             <label class="ability-check">
-                                <input type="checkbox" data-key="${key}" data-flag="perishable" ${perishable ? 'checked' : ''}> Perishable
+                                <input type="checkbox" data-key="${key}" data-flag="perishable" ${perishable ? 'checked' : ''}> ${__('save.joker.perishable')}
                             </label>
                             <label class="ability-check">
-                                <input type="checkbox" data-key="${key}" data-flag="rental" ${rental ? 'checked' : ''}> Rental
+                                <input type="checkbox" data-key="${key}" data-flag="rental" ${rental ? 'checked' : ''}> ${__('save.joker.rental')}
                             </label>
                         </div>
                     </div>
@@ -801,13 +806,13 @@ function renderDeckTab() {
     bulkAction += `
             <span class="bulk-label"><i class="fa-solid fa-check-square"></i> <span id="deck-bulk-count">0</span> selected</span>
             <div class="bulk-sep"></div>
-            <select id="bulk-suit"><option value="">Suit...</option>${_suits.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
-            <select id="bulk-value"><option value="">Value...</option>${_values.map(v => `<option value="${v}">${v}</option>`).join('')}</select>
-            <select id="bulk-enhance"><option value="">Enhance...</option>${_enhancementTypes.map(e => `<option value="${e}">${formatName(e).replace('m_','')}</option>`).join('')}<option value="__none__">(none)</option></select>
-            <select id="bulk-seal"><option value="">Seal...</option>${_sealTypes.map(s => `<option value="${s}">${s}</option>`).join('')}<option value="__none__">(none)</option></select>
-            <button class="bulk-apply" id="bulk-apply-btn">Apply</button>
+            <select id="bulk-suit"><option value="">${__('save.bulk.suit')}</option>${_suits.map(s => `<option value="${s}">${i18nGameName(s, getCurrentLanguage())}</option>`).join('')}</select>
+            <select id="bulk-value"><option value="">${__('save.bulk.value')}</option>${_values.map(v => `<option value="${v}">${i18nGameName(v, getCurrentLanguage())}</option>`).join('')}</select>
+            <select id="bulk-enhance"><option value="">${__('save.bulk.enhance')}</option>${_enhancementTypes.map(e => `<option value="${e}">${i18nGameName(e, getCurrentLanguage())}</option>`).join('')}<option value="__none__">${__('save.bulk.none')}</option></select>
+            <select id="bulk-seal"><option value="">${__('save.bulk.seal')}</option>${_sealTypes.map(s => `<option value="${s}">${i18nGameName(s, getCurrentLanguage())}</option>`).join('')}<option value="__none__">${__('save.bulk.none')}</option></select>
+            <button class="bulk-apply" id="bulk-apply-btn">${__('btn.apply')}</button>
             <div class="bulk-sep"></div>
-            <button class="bulk-remove" id="bulk-remove-btn"><i class="fa-solid fa-trash"></i> Remove</button>
+            <button class="bulk-remove" id="bulk-remove-btn"><i class="fa-solid fa-trash"></i> ${__('btn.remove')}</button>
     `;
     bulkAction += '</div>';
 
@@ -817,7 +822,7 @@ function renderDeckTab() {
             <div style="margin-bottom:8px;">
                 <label style="cursor:pointer;font-family:var(--font-terminal);font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">
                     <input type="checkbox" id="deck-select-all" style="accent-color:var(--gold);">
-                    Select All
+                    ${__('btn.select_all')}
                 </label>
             </div>
             ${bulkAction}
@@ -849,15 +854,15 @@ function renderDeckTab() {
                 </select>
                 <select class="deck-value-select" data-key="${key}" data-field="value">
                     ${isNew ? '<option value="">-</option>' : ''}
-                    ${_values.map(v => `<option value="${v}" ${v === currentValue ? 'selected' : ''}>${v}</option>`).join('')}
+                    ${_values.map(v => `<option value="${v}" ${v === currentValue ? 'selected' : ''}>${i18nGameName(v, getCurrentLanguage())}</option>`).join('')}
                 </select>
                 <select class="deck-enhance-select" data-key="${key}" data-field="enhancement">
                     <option value="">-</option>
-                    ${_enhancementTypes.map(e => `<option value="${e}" ${e === currentEnhancement ? 'selected' : ''}>${formatName(e).replace('m_','')}</option>`).join('')}
+                    ${_enhancementTypes.map(e => `<option value="${e}" ${e === currentEnhancement ? 'selected' : ''}>${i18nGameName(e, getCurrentLanguage())}</option>`).join('')}
                 </select>
                 <select class="deck-seal-select" data-key="${key}" data-field="seal">
                     <option value="">-</option>
-                    ${_sealTypes.map(s => `<option value="${s}" ${s === currentSeal ? 'selected' : ''}>${s}</option>`).join('')}
+                    ${_sealTypes.map(s => `<option value="${s}" ${s === currentSeal ? 'selected' : ''}>${i18nGameName(s, getCurrentLanguage())}</option>`).join('')}
                 </select>
                 ${currentEnhancement === 'm_lucky' ? `<span class="lucky-odds">${_hasOopsJoker() ? '2/15' : '1/15'} <i class="fa-solid fa-xmark"></i>20 · ${_hasOopsJoker() ? '2/5' : '1/5'} <i class="fa-solid fa-dollar-sign"></i>20</span>` : ''}
                 <button class="remove-btn" data-key="${key}" data-area="deck"><i class="fa-solid fa-trash"></i></button>
@@ -980,7 +985,7 @@ function renderPlanetsTab() {
         const mult = handData.mult || handData.s_mult || 0;
         html += `
             <div class="planet-level-row">
-                <span class="hand-name">${handName}</span>
+                <span class="hand-name">${getCurrentLanguage() === 'zh' ? (GAME_NAMES_ZH.pokerHands[handName] || handName) : handName}</span>
                 <span class="hand-level">${__('save.planet.level')} ${level}</span>
                 <span class="hand-stat">${chips} <i class="fa-solid fa-circle" style="color:var(--gold);font-size:8px;vertical-align:middle;"></i> ${mult}</span>
                 <input type="number" data-hand="${handName}" value="${level}" min="1" max="99">
@@ -1061,8 +1066,9 @@ function attachSaveEventListeners() {
             const allDecks = getAllDeckIds();
             const deckIdx = allDecks.indexOf(deckKey);
             const pos = getDeckPosition(deckIdx >= 0 ? deckIdx : 0, allDecks.length);
+            const lang = getCurrentLanguage();
             const deckObj = {
-                set: 'Back', key: deckKey, name: DECK_NAMES[deckKey] || formatName(deckKey),
+                set: 'Back', key: deckKey, name: lang === 'zh' ? (GAME_NAMES_ZH.backs[deckKey] || formatName(deckKey)) : (DECK_NAMES[deckKey] || formatName(deckKey)),
                 stake: saveData.BACK?.stake ?? 0, order: deckIdx + 1, unlocked: true, discovered: true, pos
             };
             saveData.BACK = deckObj;
@@ -1366,7 +1372,7 @@ function attachSaveEventListeners() {
                 delete card._newCard;
             });
             renderSaveEditor();
-            showNotification(`Applied to ${selected.length} card(s)`, 'success');
+            showNotification(__('save.notif.applied_cards', { count: selected.length }), 'success');
         });
     }
 
@@ -1391,7 +1397,7 @@ function attachSaveEventListeners() {
             });
             saveData.cardAreas.deck.cards = newCards;
             renderSaveEditor();
-            showNotification(`Removed ${keys.length} card(s)`, 'info');
+            showNotification(__('save.notif.removed_cards', { count: keys.length }), 'info');
         });
     }
 
@@ -1611,13 +1617,13 @@ function showJokerAddModal() {
     overlay.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-plus"></i> Add Jokers</h3>
+                <h3><i class="fa-solid fa-plus"></i> ${__('save.add_jokers_title')}</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <input class="modal-search" type="text" placeholder="Search jokers...">
+                <input class="modal-search" type="text" placeholder="${__('save.search_jokers')}">
                 <label class="modal-select-all">
-                    <input type="checkbox" class="select-all-cb"> Select All
+                    <input type="checkbox" class="select-all-cb"> ${__('btn.select_all')}
                 </label>
                 <div class="modal-joker-grid">
                     ${allJokers.map(jid => `
@@ -1631,9 +1637,9 @@ function showJokerAddModal() {
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn modal-btn-secondary modal-cancel">Cancel</button>
+                <button class="modal-btn modal-btn-secondary modal-cancel">${__('btn.cancel')}</button>
                 <button class="modal-btn modal-btn-primary modal-confirm">
-                    <i class="fa-solid fa-plus"></i> Add Selected
+                    <i class="fa-solid fa-plus"></i> ${__('save.add_selected')}
                 </button>
             </div>
         </div>
@@ -1687,7 +1693,7 @@ function showJokerAddModal() {
         const selected = [...overlay.querySelectorAll('.modal-joker-item input[type="checkbox"]:checked')]
             .map(cb => cb.value);
         if (selected.length === 0) {
-            showNotification('No jokers selected', 'error');
+            showNotification(__('save.notif.no_jokers_selected'), 'error');
             return;
         }
         if (!saveData.cardAreas.jokers.cards) saveData.cardAreas.jokers.cards = {};
@@ -1704,7 +1710,7 @@ function showJokerAddModal() {
         }
         overlay.remove();
         renderSaveEditor();
-        showNotification(`Added ${selected.length} joker(s)`, 'success');
+        showNotification(__('save.notif.jokers_added', { count: selected.length }), 'success');
     });
 
     // Load images
