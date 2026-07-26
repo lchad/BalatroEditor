@@ -17,9 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - run: npm ci
+      - run: npm install
 
       - name: Build macOS .dmg
         run: npx electron-builder --mac --publish always
@@ -30,7 +29,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.dmg
-          token: ${{ secrets.GITHUB_TOKEN }}
 
   build-win:
     runs-on: windows-latest
@@ -40,9 +38,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - run: npm ci
+      - run: npm install
 
       - name: Build Windows .exe
         run: npx electron-builder --win --publish always
@@ -53,7 +50,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.exe
-          token: ${{ secrets.GITHUB_TOKEN }}
 
   build-linux:
     runs-on: ubuntu-latest
@@ -63,9 +59,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - run: npm ci
+      - run: npm install
 
       - name: Build Linux AppImage
         run: npx electron-builder --linux --publish always
@@ -76,4 +71,3 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.AppImage
-          token: ${{ secrets.GITHUB_TOKEN }}
