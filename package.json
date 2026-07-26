@@ -30,18 +30,18 @@
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg",
-      "icon": "electron/icon.png",
+      "icon": "electron/balatro.icns",
       "identity": null,
       "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
     "win": {
       "target": "nsis",
-      "icon": "electron/icon.png"
+      "icon": "electron/balatro.png"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "electron/icon.png"
+      "icon": "electron/balatro.png"
     }
   }
 }
