@@ -355,6 +355,7 @@ const GAME_NAMES_ZH = {
     "b_painted": "彩绘牌组"
 },
     pokerHands: {
+    // Display-name keys (matching Balatro's zh_CN.lua)
     "Flush House": "同花葫芦",
     "Five of a Kind": "五条",
     "Royal Flush": "皇家同花顺",
@@ -367,7 +368,19 @@ const GAME_NAMES_ZH = {
     "Two Pair": "两对",
     "Pair": "对子",
     "High Card": "高牌",
-    "Flush Five": "同花五条"
+    "Flush Five": "同花五条",
+
+    // Internal game keys — what profile.jkr actually uses in hand_usage
+    "HighCard": "高牌",
+    "TwoPair": "两对",
+    "ThreeofaKind": "三条",
+    "FourofaKind": "四条",
+    "FiveofaKind": "五条",
+    "FullHouse": "葫芦",
+    "StraightFlush": "同花顺",
+    "RoyalFlush": "皇家同花顺",
+    "FlushHouse": "同花葫芦",
+    "FlushFive": "同花五条"
 },
     suits: {
     "Spades": "黑桃",

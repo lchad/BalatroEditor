@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -135,9 +135,58 @@ ipcMain.handle('fs:stopWatching', () => {
     if (watcher) { watcher.close(); watcher = null; }
 });
 
+// ── App menu ──────────────────────────────────────────────────
+
+const appMenu = Menu.buildFromTemplate([
+    {
+        label: 'Balatro Editor',
+        submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            {
+                label: 'Restart Balatro Editor',
+                accelerator: 'CmdOrCtrl+R',
+                click: () => {
+                    app.relaunch();
+                    app.quit();
+                }
+            },
+            { type: 'separator' },
+            { role: 'quit' }
+        ]
+    },
+    {
+        label: 'Edit',
+        submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'selectAll' }
+        ]
+    },
+    {
+        label: 'View',
+        submenu: [
+            { role: 'reload' },
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+            { type: 'separator' },
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+        ]
+    }
+]);
+
 // ── App lifecycle ─────────────────────────────────────────────
 
 app.whenReady().then(() => {
+    Menu.setApplicationMenu(appMenu);
     createWindow();
 
     app.on('activate', () => {

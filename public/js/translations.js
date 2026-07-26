@@ -1,7 +1,7 @@
 const _translations = {
   "en": {
     "app.title": "Balatro Editor",
-    "app.version": "v2.6.3 — 1.0.1.o-FULL",
+    "app.version": "v2.6.4 — 1.0.1.o-FULL",
 
     "nav.jokers": "Jokers",
     "nav.tarots": "Tarots",
@@ -234,7 +234,7 @@ const _translations = {
   },
   "es": {
     "app.title": "Balatro Editor",
-    "app.version": "v2.6.3 — 1.0.1.o-FULL",
+    "app.version": "v2.6.4 — 1.0.1.o-FULL",
 
     "nav.jokers": "Comodines",
     "nav.tarots": "Arcanos",
@@ -463,7 +463,7 @@ const _translations = {
   },
   "zh": {
     "app.title": "Balatro Editor",
-    "app.version": "v2.6.3 — 1.0.1.o-FULL",
+    "app.version": "v2.6.4 — 1.0.1.o-FULL",
     "app.description": "一个完全在浏览器中运行的 Balatro 存档编辑器。",
 
     "nav.jokers": "小丑牌",

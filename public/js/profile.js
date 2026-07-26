@@ -275,8 +275,31 @@ function renderMemory() {
         { key: 'most_money', label: __('stat.most_money'), icon: 'fa-money-check-dollar' },
     ];
     return items.map(item => {
-        const val = memory[item.key];
+        let val = memory[item.key];
         if (val === undefined || val === null) return '';
+        // Translate deck names (game stores display names like "Yellow Deck")
+        if (item.key === 'deck' && typeof val === 'string') {
+            const lang = getCurrentLanguage();
+            if (lang === 'zh') {
+                const deckZhMap = {
+                    'Red Deck': '红色牌组', 'Blue Deck': '蓝色牌组', 'Yellow Deck': '黄色牌组',
+                    'Green Deck': '绿色牌组', 'Black Deck': '黑色牌组', 'Magic Deck': '魔法牌组',
+                    'Nebula Deck': '星云牌组', 'Ghost Deck': '幽灵牌组', 'Abandoned Deck': '废弃牌组',
+                    'Checkered Deck': '方格牌组', 'Zodiac Deck': '黄道牌组', 'Painted Deck': '彩绘牌组',
+                    'Anaglyph Deck': '浮雕牌组', 'Plasma Deck': '等离子牌组', 'Erratic Deck': '古怪牌组',
+                };
+                val = deckZhMap[val] || val;
+            } else if (lang === 'es') {
+                const deckEsMap = {
+                    'Red Deck': 'Mazo Rojo', 'Blue Deck': 'Mazo Azul', 'Yellow Deck': 'Mazo Amarillo',
+                    'Green Deck': 'Mazo Verde', 'Black Deck': 'Mazo Negro', 'Magic Deck': 'Mazo Mágico',
+                    'Nebula Deck': 'Mazo Nebulosa', 'Ghost Deck': 'Mazo Fantasma', 'Abandoned Deck': 'Mazo Abandonado',
+                    'Checkered Deck': 'Mazo Ajedrez', 'Zodiac Deck': 'Mazo Zodiaco', 'Painted Deck': 'Mazo Pintado',
+                    'Anaglyph Deck': 'Mazo Anaglifo', 'Plasma Deck': 'Mazo Plasma', 'Erratic Deck': 'Mazo Errático',
+                };
+                val = deckEsMap[val] || val;
+            }
+        }
         return `
             <div class="stat-card">
                 <div class="stat-icon"><i class="fa-solid ${item.icon}"></i></div>

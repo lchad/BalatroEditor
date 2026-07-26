@@ -19,20 +19,57 @@
     }
 
     // ── Desktop-only UI tweaks ──────────────────────────────────────
-    // Hide import/export controls (files are loaded/saved from game dir directly)
-    function hideImportExportButtons() {
-        const exportBtn = document.getElementById('export-jkr');
-        const importLabel = document.querySelector('label[for="import-jkr"]');
-        if (exportBtn) exportBtn.style.display = 'none';
-        if (importLabel) importLabel.style.display = 'none';
+    // Hide import/export controls (files loaded/saved from game dir directly)
+    // Some buttons are rendered dynamically (profile, save editor), so
+    // we use a MutationObserver to catch them when they appear.
+    function hideDesktopButtons() {
+        // Static buttons (in sidebar HTML)
+        const staticBtns = [
+            '#export-jkr',
+            'label[for="import-jkr"]',
+        ];
+        staticBtns.forEach(sel => {
+            const el = document.querySelector(sel);
+            if (el) el.style.display = 'none';
+        });
+        // Dynamic buttons (added to DOM after render)
+        // Profile "save & export" — auto-saved on toggle.
+        // Save-editor "导入 save.jkr" — no save file in desktop mode yet.
+        const dynamicIds = ['save-profile', 'import-save-jkr'];
+        dynamicIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const parent = el.closest('.control-btn, label') || el;
+                parent.style.display = 'none';
+            }
+        });
     }
 
+    // Watch for dynamically rendered profile/save buttons
+    const btnObserver = new MutationObserver(() => hideDesktopButtons());
+    btnObserver.observe(document.body || document.documentElement, {
+        childList: true, subtree: true,
+    });
+
     // Set language based on Electron system locale
+    // Also reorder lang buttons: if Chinese, put 中文 first
     async function applySystemLocale() {
         try {
             const locale = await desktop.getLocale();
-            if (locale && locale.startsWith('zh') && typeof setLanguage === 'function') {
-                setLanguage('zh');
+            const isZh = locale && locale.startsWith('zh');
+            if (isZh) {
+                // Reorder language buttons: 中文 first, then EN, ES
+                document.querySelectorAll('.lang-toggle, .mobile-lang-toggle').forEach(container => {
+                    const zhBtn = container.querySelector('.lang-btn[data-lang="zh"]');
+                    const enBtn = container.querySelector('.lang-btn[data-lang="en"]');
+                    const esBtn = container.querySelector('.lang-btn[data-lang="es"]');
+                    if (zhBtn && enBtn) {
+                        container.insertBefore(zhBtn, container.firstChild);
+                    }
+                });
+                if (typeof setLanguage === 'function') {
+                    setLanguage('zh');
+                }
             }
         } catch (_) { /* use default from navigator.language */ }
     }
@@ -116,7 +153,7 @@
         }
 
         // Apply desktop-specific UI tweaks
-        hideImportExportButtons();
+        hideDesktopButtons();
         applySystemLocale();
 
         // File watching
@@ -173,6 +210,41 @@
             }
         };
     }
+
+    // ── Auto-save: every toggle in desktop mode writes to game dir ──
+    const origToggleItem = window.toggleItem;
+    if (typeof origToggleItem === 'function') {
+        let autoSaveTimer = null;
+        window.toggleItem = function (id) {
+            origToggleItem(id);
+            if (autoSaveTimer) clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => saveDesktopMeta(), 300);
+        };
+    }
+
+    async function saveDesktopMeta() {
+        if (!metaData?.unlocked) return;
+        try {
+            const jkrContent = await window.jsonToJkr(metaData);
+            const reader = new FileReader();
+            const base64 = await new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(new Blob([jkrContent], { type: 'application/octet-stream' }));
+            });
+            const result = await desktop.writeBalatroFile('meta.jkr', base64);
+            if (result?.success) {
+                console.log('[Desktop] meta.jkr auto-saved');
+            } else {
+                console.warn('[Desktop] auto-save failed:', result?.error);
+            }
+        } catch (e) {
+            console.error('[Desktop] auto-save error:', e);
+        }
+    }
+
+    // ── Auto-save: profile & save editors ────────────────────────
+    // These don't have toggleItem; their save buttons are overridden
+    // by the exportBlob override above, so EXPORT still works.
 
     // ── Init on DOMContentLoaded ─────────────────────────────────────────
     // Note: the actual file loading is triggered by the loadMetaJSON override
