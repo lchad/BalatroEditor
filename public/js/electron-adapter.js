@@ -242,9 +242,35 @@
         }
     }
 
-    // ── Auto-save: profile & save editors ────────────────────────
-    // These don't have toggleItem; their save buttons are overridden
-    // by the exportBlob override above, so EXPORT still works.
+    // ── Auto-save: profile edits ─────────────────────────────────
+    // Profile inputs are dynamically rendered; use event delegation.
+    let profileSaveTimer = null;
+    document.getElementById('content-container')?.addEventListener('change', (e) => {
+        if (e.target.closest('.profile-container')) {
+            if (profileSaveTimer) clearTimeout(profileSaveTimer);
+            profileSaveTimer = setTimeout(() => saveDesktopProfile(), 400);
+        }
+    });
+
+    async function saveDesktopProfile() {
+        if (!profileData) return;
+        try {
+            const jkrContent = await window.jsonToJkr(profileData);
+            const reader = new FileReader();
+            const base64 = await new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(new Blob([jkrContent], { type: 'application/octet-stream' }));
+            });
+            const result = await desktop.writeBalatroFile('profile.jkr', base64);
+            if (result?.success) {
+                console.log('[Desktop] profile.jkr auto-saved');
+            } else {
+                console.warn('[Desktop] profile auto-save failed:', result?.error);
+            }
+        } catch (e) {
+            console.error('[Desktop] profile auto-save error:', e);
+        }
+    }
 
     // ── Init on DOMContentLoaded ─────────────────────────────────────────
     // Note: the actual file loading is triggered by the loadMetaJSON override
