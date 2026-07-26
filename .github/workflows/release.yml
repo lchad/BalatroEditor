@@ -21,10 +21,9 @@ jobs:
       - run: npm install
 
       - name: Build macOS .dmg
-        run: npx electron-builder --mac --publish always
+        run: npx electron-builder --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload .dmg to Release
@@ -44,7 +43,7 @@ jobs:
       - run: npm install
 
       - name: Build Windows .exe
-        run: npx electron-builder --win --publish always
+        run: npx electron-builder --win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -65,11 +64,15 @@ jobs:
 
       - run: npm install
 
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 libxkbcommon0
+
       - name: Build Linux AppImage
-        run: npx electron-builder --linux --publish always
+        run: npx electron-builder --linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload AppImage to Release
         uses: softprops/action-gh-release@v2

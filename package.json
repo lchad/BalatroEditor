@@ -1,6 +1,6 @@
 {
   "name": "balatro-editor",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "A desktop save editor for Balatro",
   "main": "electron/main.js",
   "scripts": {

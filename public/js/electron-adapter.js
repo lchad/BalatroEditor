@@ -137,9 +137,6 @@
     }
 
     // ── Init on DOMContentLoaded ─────────────────────────────────────────
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', autoLoadBalatroFiles);
-    } else {
-        autoLoadBalatroFiles();
-    }
+    // Note: the actual file loading is triggered by the loadMetaJSON override
+    // above (called from meta.js DOMContentLoaded), so no separate init needed.
 })();

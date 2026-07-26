@@ -1,9 +1,14 @@
+# macOS files
+.DS_Store
+
+# Claude Code working directory
+.claude/
+
 # profile
 data/profile.json
 
-# AI tooling only — pako for JKR conversion, not used by the web app (loaded from CDN)
+# Electron dev dependencies (not shipped in builds — electron-builder handles bundling)
 node_modules/
-package-lock.json
 
 # demo saves (regenerated on demand)
 data/*.jkr
