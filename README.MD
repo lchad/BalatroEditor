@@ -61,6 +61,27 @@ git clone https://github.com/MatFon73/BalatroEditor.git
 
 That's it! No server, no installation, no configuration needed.
 
+### Desktop App (Electron)
+
+A desktop version is available for macOS, Windows, and Linux with auto-loading of Balatro save files.
+
+**Download:** [Releases](https://github.com/lchad/BalatroEditor/releases) — download `.dmg` (macOS), `.exe` (Windows), or `.AppImage` (Linux)
+
+**Build from source:**
+```bash
+npm install
+npm start              # Run in development mode
+npm run build:mac      # Package .dmg
+npm run build:win      # Package .exe
+npm run build:linux    # Package .AppImage
+```
+
+The desktop app automatically:
+- Detects your Balatro save directory
+- Loads meta.jkr, profile.jkr, and save.jkr on startup
+- Saves edits directly to the game directory
+- Watches for file changes and notifies you
+
 ### File Structure
 ```
 BalatroEditor/
@@ -75,6 +96,10 @@ BalatroEditor/
 ├── .vscode/
 │   ├── extensions.json        ← Recommended extensions (Live Server)
 │   └── settings.json          ← Workspace settings
+├── electron/
+│   ├── main.js                ← Electron main process
+│   ├── preload.js             ← Secure IPC bridge
+│   └── icon.png               ← App icon
 ├── data/
 │   ├── meta.json              ← Default/demo save data
 │   └── profile.json           ← Default/demo profile data

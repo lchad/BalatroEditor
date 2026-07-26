@@ -3,9 +3,12 @@ data/profile.json
 
 # AI tooling only — pako for JKR conversion, not used by the web app (loaded from CDN)
 node_modules/
-package.json
 package-lock.json
 
 # demo saves (regenerated on demand)
 data/*.jkr
 data/save.jkr
+
+# Electron build outputs
+dist/
+*.blockmap

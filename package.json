@@ -1,0 +1,43 @@
+{
+  "name": "balatro-editor",
+  "version": "2.5.0",
+  "description": "A desktop save editor for Balatro",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.lchad.balatro-editor",
+    "productName": "Balatro Editor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "public/**/*",
+      "data/**/*",
+      "electron/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "dmg",
+      "icon": "electron/icon.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "electron/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "electron/icon.png"
+    }
+  }
+}
