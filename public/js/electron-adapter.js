@@ -18,25 +18,25 @@
         return bytes;
     }
 
-    // ── Auto-load save files on startup ──────────────────────────────────
-    async function autoLoadBalatroFiles() {
+    // ── Override loadMetaJSON to use real jkr files instead of demo data ──
+    // In web mode, meta.js fetches data/meta.json (demo data). In desktop mode,
+    // we load the actual meta.jkr from the game directory instead.
+    async function loadDesktopSaveFiles() {
         const paths = await desktop.getSavePaths();
 
-        // Show paths in footer for convenience
+        // Show paths in footer
         document.querySelectorAll('[data-i18n="footer.file_location"]').forEach(el => {
             const parent = el.closest('.sidebar-footer') || el.parentElement;
             if (parent) {
                 const info = document.createElement('div');
                 info.className = 'desktop-paths';
                 info.style.cssText = 'font-size:11px;color:var(--text-dim);margin-top:4px;line-height:1.6;';
-                info.innerHTML = `
-                    <div>📂 ${paths.saveDir}</div>
-                `;
+                info.innerHTML = `<div>📂 ${paths.saveDir}</div>`;
                 parent.appendChild(info);
             }
         });
 
-        // Try loading meta.jkr
+        // Load meta.jkr from Balatro save directory
         const meta = await desktop.readBalatroFile('meta.jkr');
         if (!meta.error && meta.data) {
             try {
@@ -46,26 +46,42 @@
                     window.metaData.unlocked = jsonData.unlocked || {};
                     window.metaData.discovered = jsonData.discovered || {};
                     window.metaData.alerted = jsonData.alerted || {};
-                    if (typeof renderCategory === 'function') renderCategory(window.currentCategory || 'jokers');
+                    updateStats(currentCategory);
+                    renderCategory(currentCategory);
                     if (typeof showNotification === 'function') showNotification('meta.jkr loaded from game directory', 'success');
                 }
-            } catch (_) { /* silent fallback to old meta.json */ }
+            } catch (_) { /* silent fallback */ }
         }
 
-        // Try loading profile.jkr
+        // Load profile.jkr
         const profile = await desktop.readBalatroFile('profile.jkr');
         if (!profile.error && profile.data) {
-            // Store path for quick save-back
             window._desktopProfilePath = profile.path;
+            try {
+                const uint8 = base64ToUint8(profile.data);
+                const jsonData = await window.jkrToJson(uint8);
+                if (jsonData) {
+                    window.profileData = jsonData;
+                    if (typeof showNotification === 'function') showNotification('profile.jkr loaded', 'success');
+                }
+            } catch (_) { /* silent */ }
         }
 
-        // Try loading save.jkr
+        // Load save.jkr
         const save = await desktop.readBalatroFile('save.jkr');
         if (!save.error && save.data) {
             window._desktopSavePath = save.path;
+            try {
+                const uint8 = base64ToUint8(save.data);
+                const jsonData = await window.jkrToJson(uint8);
+                if (jsonData) {
+                    window.saveData = jsonData;
+                    if (typeof showNotification === 'function') showNotification('save.jkr loaded', 'success');
+                }
+            } catch (_) { /* silent */ }
         }
 
-        // Start watching for file changes
+        // File watching
         desktop.startWatching();
         desktop.onFileChanged((filename) => {
             if (typeof showNotification === 'function') {
@@ -73,6 +89,23 @@
             }
         });
     }
+
+    // ── Skip safety modal in desktop mode (writing directly to game dir) ──
+    if (window.showSafeDownloadModal) {
+        window.showSafeDownloadModal = async () => true;
+    }
+
+    // ── Patch loadMetaJSON to skip demo data fetch, load real files instead ──
+    const origLoadMetaJSON = window.loadMetaJSON;
+    window.loadMetaJSON = async function () {
+        // Still show skeleton loading
+        if (typeof showCategorySkeletonLoading === 'function') {
+            showCategorySkeletonLoading(currentCategory || 'jokers');
+        }
+        // Load real game files instead of demo data/meta.json
+        await loadDesktopSaveFiles();
+        window._desktopFileLoadDone = true;
+    };
 
     // ── Override exportBlob for desktop ──────────────────────────────────
     // Save directly to Balatro game directory instead of downloading
