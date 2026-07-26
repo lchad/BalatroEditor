@@ -26,6 +26,7 @@
       "data/**/*",
       "electron/**/*"
     ],
+    "afterSign": "scripts/after-sign.js",
     "mac": {
       "category": "public.app-category.utilities",
       "target": "dmg",
