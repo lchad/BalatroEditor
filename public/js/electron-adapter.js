@@ -23,6 +23,7 @@
     // we load the actual meta.jkr from the game directory instead.
     async function loadDesktopSaveFiles() {
         const paths = await desktop.getSavePaths();
+        console.log('[Desktop] Save paths:', paths);
 
         // Show paths in footer
         document.querySelectorAll('[data-i18n="footer.file_location"]').forEach(el => {
@@ -37,37 +38,49 @@
         });
 
         // Load meta.jkr from Balatro save directory
+        console.log('[Desktop] Loading meta.jkr...');
         const meta = await desktop.readBalatroFile('meta.jkr');
+        console.log('[Desktop] meta.jkr response:', meta);
         if (!meta.error && meta.data) {
             try {
                 const uint8 = base64ToUint8(meta.data);
                 const jsonData = await window.jkrToJson(uint8);
+                console.log('[Desktop] meta.jkr parsed:', jsonData ? 'OK' : 'null');
                 if (jsonData && jsonData.unlocked) {
-                    window.metaData.unlocked = jsonData.unlocked || {};
-                    window.metaData.discovered = jsonData.discovered || {};
-                    window.metaData.alerted = jsonData.alerted || {};
+                    metaData.unlocked = jsonData.unlocked || {};
+                    metaData.discovered = jsonData.discovered || {};
+                    metaData.alerted = jsonData.alerted || {};
                     updateStats(currentCategory);
                     renderCategory(currentCategory);
                     if (typeof showNotification === 'function') showNotification('meta.jkr loaded from game directory', 'success');
                 }
-            } catch (_) { /* silent fallback */ }
+            } catch (e) { console.error('[Desktop] meta.jkr parse error:', e); }
+        } else {
+            console.warn('[Desktop] meta.jkr load failed:', meta?.error || 'no data');
+            if (typeof showNotification === 'function') showNotification('Failed to load meta.jkr: ' + (meta?.error || 'unknown'), 'error');
         }
 
         // Load profile.jkr
+        console.log('[Desktop] Loading profile.jkr...');
         const profile = await desktop.readBalatroFile('profile.jkr');
+        console.log('[Desktop] profile.jkr response:', profile);
         if (!profile.error && profile.data) {
             window._desktopProfilePath = profile.path;
             try {
                 const uint8 = base64ToUint8(profile.data);
                 const jsonData = await window.jkrToJson(uint8);
+                console.log('[Desktop] profile.jkr parsed:', jsonData ? 'OK' : 'null');
                 if (jsonData) {
-                    window.profileData = jsonData;
+                    profileData = jsonData;
                     if (typeof showNotification === 'function') showNotification('profile.jkr loaded', 'success');
                 }
-            } catch (_) { /* silent */ }
+            } catch (e) { console.error('[Desktop] profile.jkr parse error:', e); }
+        } else {
+            console.warn('[Desktop] profile.jkr load failed:', profile?.error || 'no data');
         }
 
-        // Load save.jkr
+        // Load save.jkr (may not exist — not an error)
+        console.log('[Desktop] Loading save.jkr...');
         const save = await desktop.readBalatroFile('save.jkr');
         if (!save.error && save.data) {
             window._desktopSavePath = save.path;
@@ -75,10 +88,12 @@
                 const uint8 = base64ToUint8(save.data);
                 const jsonData = await window.jkrToJson(uint8);
                 if (jsonData) {
-                    window.saveData = jsonData;
+                    saveData = jsonData;
                     if (typeof showNotification === 'function') showNotification('save.jkr loaded', 'success');
                 }
-            } catch (_) { /* silent */ }
+            } catch (e) { console.error('[Desktop] save.jkr parse error:', e); }
+        } else {
+            console.log('[Desktop] save.jkr not available:', save?.error || 'no data');
         }
 
         // File watching

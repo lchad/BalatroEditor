@@ -3,7 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-// Auto-detect Balatro save directory per platform
+// Detect Balatro save directory per platform
+// All JKR files (meta.jkr, profile.jkr, save.jkr) live in the same directory
 function getBalatroSaveDir() {
     switch (process.platform) {
         case 'darwin':
@@ -15,13 +16,6 @@ function getBalatroSaveDir() {
         default:
             return null;
     }
-}
-
-// Also detect profile.jkr location (same root, different filename)
-function getBalatroProfileDir() {
-    const dir = getBalatroSaveDir();
-    if (!dir) return null;
-    return path.resolve(dir, '..');  // profile.jkr is one level above save.jkr
 }
 
 let mainWindow = null;
@@ -42,28 +36,39 @@ function createWindow() {
     });
 
     mainWindow.loadFile(path.join(__dirname, '..', 'index.html'));
+
+    // Pipe renderer console logs to terminal
+    mainWindow.webContents.on('console-message', (_event, level, message) => {
+        const prefix = ['', 'log', 'warn', 'error'][level] || 'log';
+        console.log(`[renderer:${prefix}] ${message}`);
+    });
+
+    // Auto-open DevTools in development
+    const isDev = !app.isPackaged;
+    if (isDev) {
+        mainWindow.webContents.openDevTools();
+    }
 }
 
 // ── IPC handlers ──────────────────────────────────────────────
 
-// Read a JKR file from the active save directory
+// Read a JKR file from the save directory
 ipcMain.handle('fs:readBalatroFile', async (_event, filename) => {
-    const baseDir = filename === 'profile.jkr' ? getBalatroProfileDir() : getBalatroSaveDir();
+    const baseDir = getBalatroSaveDir();
     if (!baseDir) return { error: 'Unsupported platform' };
     const filePath = path.join(baseDir, filename);
-    if (!fs.existsSync(filePath)) return { error: `File not found: ${filename}` };
+    if (!fs.existsSync(filePath)) return { error: `File not found: ${filePath}` };
     try {
         const data = fs.readFileSync(filePath);
-        // Return as base64 for binary-safe transfer across IPC
-        return { data: data.buffer ? Buffer.from(data).toString('base64') : Buffer.from(data).toString('base64'), path: filePath };
+        return { data: Buffer.from(data).toString('base64'), path: filePath };
     } catch (err) {
         return { error: err.message };
     }
 });
 
-// Write a JKR file to the active save directory
+// Write a JKR file to the save directory
 ipcMain.handle('fs:writeBalatroFile', async (_event, filename, base64Data) => {
-    const baseDir = filename === 'profile.jkr' ? getBalatroProfileDir() : getBalatroSaveDir();
+    const baseDir = getBalatroSaveDir();
     if (!baseDir) return { error: 'Unsupported platform' };
     const filePath = path.join(baseDir, filename);
     try {
@@ -102,7 +107,6 @@ ipcMain.handle('app:getPlatform', () => process.platform);
 // Get Balatro save paths
 ipcMain.handle('app:getSavePaths', () => ({
     saveDir: getBalatroSaveDir(),
-    profileDir: getBalatroProfileDir(),
     platform: process.platform,
 }));
 
