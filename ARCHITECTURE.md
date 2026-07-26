@@ -172,8 +172,10 @@ CI 配置：`.github/workflows/release.yml` — 推送 `v*` tag 触发，三平�
 
 ### 已知问题
 
-- macOS 无 Apple Developer 证书，下载后需「右键 → 打开」绕过 Gatekeeper
-- 签名方案：购买 $99/年 Apple Developer 证书后，CI 可自动签名公证
+- **macOS「已损坏」错误**：因无 Apple Developer 证书，Ad-hoc 签名仅避免"已损坏"报错，但仍会提示"无法验证开发者"
+  - 临时绕过（适用于已下载的旧版本）：`xattr -cr /Applications/Balatro\ Editor.app`
+  - 推荐打开方式：右键 → 打开（选择仍要打开）
+  - 终局方案：购买 $99/年 Apple Developer 证书后，CI 可自动签名公证
 
 ## 关键约定
 

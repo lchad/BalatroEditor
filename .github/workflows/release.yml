@@ -20,11 +20,28 @@ jobs:
 
       - run: npm install
 
-      - name: Build macOS .dmg
-        run: npx electron-builder --mac
+      - name: Build macOS app (unpacked)
+        run: npx electron-builder --mac --dir
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Ad-hoc sign the app bundle for macOS Gatekeeper
+        run: |
+          APP_PATH="dist/mac/Balatro Editor.app"
+          if [ -d "$APP_PATH" ]; then
+            echo "Ad-hoc signing $APP_PATH ..."
+            codesign --force --deep --sign - "$APP_PATH"
+            echo "Verifying signature:"
+            codesign --verify --verbose=4 "$APP_PATH" 2>&1 || true
+          else
+            echo "WARNING: App bundle not found at $APP_PATH"
+          fi
+
+      - name: Package into DMG
+        run: npx electron-builder --mac --prepackaged "dist/mac/Balatro Editor.app"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload .dmg to Release
         uses: softprops/action-gh-release@v2
