@@ -147,7 +147,9 @@ electron/
 - **覆盖 `loadMetaJSON`** — 跳过 `fetch('data/meta.json')`，改为加载真实存档
 - **覆盖 `exportBlob`** — 直接写回游戏目录，无需下载
 - **覆盖 `showSafeDownloadModal`** — 跳过安全提示
-- **自动加载** meta.jkr / profile.jkr / save.jkr
+- **自动加载** meta.jkr / profile.jkr / save.jkr（注意：`metaData`、`profileData`、`saveData` 用 `let` 声明，别用 `window.` 前缀访问）
+- **语言自动切换** — 通过 `app.getLocale()` 获取系统语言，若为中文自动调用 `setLanguage('zh')`
+- **隐藏导入/导出按钮** — 桌面端直接读写游戏目录，不需要导入导出
 - **文件监视** — 游戏保存后通知用户刷新
 
 **浏览器端** `window.balatroDesktop` 为 undefined，所有适配代码不执行。

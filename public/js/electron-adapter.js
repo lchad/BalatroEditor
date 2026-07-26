@@ -18,6 +18,25 @@
         return bytes;
     }
 
+    // ── Desktop-only UI tweaks ──────────────────────────────────────
+    // Hide import/export controls (files are loaded/saved from game dir directly)
+    function hideImportExportButtons() {
+        const exportBtn = document.getElementById('export-jkr');
+        const importLabel = document.querySelector('label[for="import-jkr"]');
+        if (exportBtn) exportBtn.style.display = 'none';
+        if (importLabel) importLabel.style.display = 'none';
+    }
+
+    // Set language based on Electron system locale
+    async function applySystemLocale() {
+        try {
+            const locale = await desktop.getLocale();
+            if (locale && locale.startsWith('zh') && typeof setLanguage === 'function') {
+                setLanguage('zh');
+            }
+        } catch (_) { /* use default from navigator.language */ }
+    }
+
     // ── Override loadMetaJSON to use real jkr files instead of demo data ──
     // In web mode, meta.js fetches data/meta.json (demo data). In desktop mode,
     // we load the actual meta.jkr from the game directory instead.
@@ -95,6 +114,10 @@
         } else {
             console.log('[Desktop] save.jkr not available:', save?.error || 'no data');
         }
+
+        // Apply desktop-specific UI tweaks
+        hideImportExportButtons();
+        applySystemLocale();
 
         // File watching
         desktop.startWatching();

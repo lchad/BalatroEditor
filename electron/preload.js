@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('balatroDesktop', {
     // Get current platform
     getPlatform: () => ipcRenderer.invoke('app:getPlatform'),
 
+    // Get system locale from Electron
+    getLocale: () => ipcRenderer.invoke('app:getLocale'),
+
     // Get Balatro game save directories
     getSavePaths: () => ipcRenderer.invoke('app:getSavePaths'),
 

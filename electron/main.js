@@ -104,6 +104,9 @@ ipcMain.handle('fs:writeFile', async (_event, filePath, base64Data) => {
 // Get platform info for UI
 ipcMain.handle('app:getPlatform', () => process.platform);
 
+// Get system locale from Electron (more reliable than navigator.language on some systems)
+ipcMain.handle('app:getLocale', () => app.getLocale().toLowerCase().replace('-', '_'));
+
 // Get Balatro save paths
 ipcMain.handle('app:getSavePaths', () => ({
     saveDir: getBalatroSaveDir(),
